@@ -10,6 +10,7 @@
 - SQLAlchemy 2.0（同步）+ PyMySQL
 - JWT（PyJWT）+ bcrypt
 - uv 管理依赖
+- 前端：Vue 3 + TypeScript + Vite + Element Plus + Pinia
 
 ## 目录结构
 
@@ -26,6 +27,14 @@ app/
     ├── payments/    # 模拟支付、异步回调、退款
     ├── admin/       # 商品管理、测试数据重置
     └── seed/        # 种子数据
+frontend/            # Vue 3 前端（商城 + 管理台）
+├── src/
+│   ├── api/         # 按业务域封装的接口调用
+│   ├── stores/      # 登录态、购物车角标
+│   ├── router/      # 路由与守卫
+│   ├── layouts/     # 商城布局、管理台布局
+│   ├── views/       # 登录注册、商品、购物车、订单、商品管理
+│   └── components/  # 商品卡片、结算弹窗、支付弹窗
 docs/
 ├── api.md               # 标准接口文档（Markdown）
 ├── Auto-Test-Demo-System-API.docx  # 接口文档 Word 版
@@ -61,6 +70,36 @@ uv run uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 - 健康检查：<http://127.0.0.1:8000/health>
 
 首次启动会执行：连接 MySQL → `CREATE DATABASE IF NOT EXISTS auto_test_demo` → 建表 → 灌种子数据（`users` 表已有数据则跳过）。
+
+## 前端
+
+前端在 `frontend/`，开发期通过 Vite 代理把 `/api` 转发到 `127.0.0.1:8000`，需先启动后端。
+
+```bash
+cd frontend
+npm install
+npm run dev     # http://127.0.0.1:5173
+```
+
+页面：
+
+| 路由 | 说明 |
+|---|---|
+| `/login`、`/register` | 登录/注册，登录页提供 `testuser`、`admin` 一键登录 |
+| `/` | 商品列表：分类筛选、搜索、分页、加购 |
+| `/products/:id` | 商品详情：加购、立即购买 |
+| `/cart` | 购物车：改数量、删除、清空、结算 |
+| `/orders`、`/orders/:id` | 订单列表与详情：支付（可模拟失败）、取消、确认收货、退款 |
+| `/admin/products` | 商品管理（仅管理员）：新建、编辑、上下架 |
+
+顶栏「重置测试数据」按钮等价于 `POST /api/v1/admin/reset`。
+
+类型检查与构建：
+
+```bash
+cd frontend
+npm run build
+```
 
 ## 种子数据
 
